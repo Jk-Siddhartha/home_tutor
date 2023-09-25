@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=PT+Sans&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Abril+Fatface&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'PT Sans', sans-serif;
+    transition: all 0.3s;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+.main-div {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+body::-webkit-scrollbar {
+    width: 10px;
+    /* background: rgb(2, 48, 32, 1); */
+    background: #20bf6b;
+}
+
+.header {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4%;
+}
+
+.header img {
+    width: 10%;
+}
+
+.header ul li {
+    display: inline-flex;
+}
+
+.header ul li a {
+    margin-right: 50px;
+    background: #20bf6b;
+    color: #fff;
+    padding: 2px 15px;
+    border-radius: 20px;
+    border: 2px solid #20bf6b;
+    font-weight: 900;
+
+}
+
+.header ul li a:hover {
+    background: none;
+    color: #20bf6b;
+    font-weight: 900;
+}
+
+.heading {
+    font-family: 'Orbitron', sans-serif;
+    text-transform: uppercase;
+    text-align: center;
+    color: #12CBC4;
+    font-weight: 900;
+    position: relative;
+    padding: 0.4% 0;
+    /* Added */
+}
+
+.heading::after {
+    content: "";
+    width: 10%;
+    height: 3px;
+    background-color: #12CBC4;
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.footer {
+    width: 100%;
+    background: #000;
+    color: #fff;
+}
+
+.footer-inner {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 2% 4%;
+}
+
+.social-media {
+    text-align: center;
+    width: 20%;
+}
+
+.social-media div{
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.social-media > div > a{
+    color: #fff;
+    font-size: 25px;
+}
+
+.social-media > div > a:hover{
+    transform: scale(1.2);
+    color: #20bf6b;
+}
+
+.other-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.other-links a{
+    color: #fff;
+}
+
+.other-links a:hover{
+    text-decoration: underline;
+}
+
+.footer p {
+    text-align: center;
+    padding: 2% 0;
+    background: #20bf6b;
+    font-size: 18px;
+
+}
