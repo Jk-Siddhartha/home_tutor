@@ -1,4 +1,5 @@
 <?php
+session_start();
 ?>
 
 <?php
@@ -15,7 +16,6 @@ include './error_hander.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="common.css">
     <style>
-
         .intro-div {
             display: flex;
             align-items: center;
@@ -52,7 +52,7 @@ include './error_hander.php';
             /* Left shadow */
         }
 
-        .demo-form:hover{
+        .demo-form:hover {
             box-shadow:
                 0 10px 0 #20bf6b,
                 /* Top shadow */
@@ -63,8 +63,8 @@ include './error_hander.php';
                 -3px 0 0 #20bf6b;
             /* Left shadow */
         }
-        
-        .demo-form img{
+
+        .demo-form img {
             width: 20%;
         }
 
@@ -221,7 +221,7 @@ include './error_hander.php';
 
 <body>
     <div class="main-div">
-    <?php
+        <?php
         include './header.php';
         ?>
         <div class="intro-div">
@@ -237,6 +237,7 @@ include './error_hander.php';
                     <option value="complaint">Complaint</option>
                     <option value="report">Report</option>
                     <option value="appreciation">Appreciation</option>
+                    <option value="feedback">Feedback</option>
                 </select>
                 <textarea name="msg" id="msg" cols="30" rows="5" placeholder="Your message..."></textarea>
                 <input type="submit" name="send-msg" value="Send Message">

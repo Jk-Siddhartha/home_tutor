@@ -20,10 +20,11 @@ if (isset($_POST['register'])) {
     $email = parseInput($_POST['email']);
     $type = parseInput($_POST['type']);
     $subject = parseInput($_POST['subject']);
+    $password = getPassword();
 
     if($name && $mobile && $email && $type && $subject){
-        $stmt = $conn->prepare('INSERT INTO users (name,mobile,email,userType,subject) VALUES (?,?,?,?,?)');
-        $stmt->bind_param('sisss',$name,$mobile,$email,$type,$subject);
+        $stmt = $conn->prepare('INSERT INTO users (name,mobile,email,userType,subject,password) VALUES (?,?,?,?,?,?)');
+        $stmt->bind_param('sissss',$name,$mobile,$email,$type,$subject,$password);
         $stmt->execute();
         echo "<script>alert('Register Successfully !!')</script>";
         $stmt->close();

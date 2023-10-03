@@ -1,4 +1,5 @@
 <?php
+session_start();
 include './error_hander.php';
 ?>
 
