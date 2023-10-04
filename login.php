@@ -22,6 +22,7 @@ if(isset($_POST['login'])){
         $stmt->execute();
         $result = $stmt->get_result();
         $_SESSION['user'] = $result->fetch_assoc();
+        $_SESSION['profile'] = 20;
         echo "<script>alert('login success!!')</script>";
         header("Location:dashboard.php");
 

@@ -6,6 +6,30 @@ if (empty($_SESSION['user'])) {
     header("Location:index.php");
 }
 
+function getNumberOfStudents($subject) {
+    return 20;
+}
+
+//schedule class
+if(isset($_POST['schedule-class'])){
+    $subject = $_POST['subject'];
+    $date = $_POST['date'];
+    $stiming = $_POST['stiming'];
+    $etiming = $_POST['etiming'];
+    $teacher_id = $_SESSION['user']['id'];
+    $teacher_name = $_SESSION['user']['name'];
+    $no_of_students = getNumberOfStudents($subject);
+
+    $stmt = $conn->prepare('INSERT INTO schedule_classes (subject,date,stiming,etiming,teacher_id,teacher_name,no_of_students) VALUES (?,?,?,?,?,?,?)');
+
+    $stmt->bind_param('ssssisi',$subject,$date,$stiming,$etiming,$teacher_id,$teacher_name,$no_of_students);
+
+    $stmt->execute();
+
+    echo "<script>alert('class scheduled successfully !!')</script>";
+}
+
+
 ?>
 
 
@@ -22,7 +46,8 @@ if (empty($_SESSION['user'])) {
     <style>
         .main-div {
             width: 100%;
-            min-height: 100vh;
+            height: 100vh;
+            overflow: hidden;
         }
 
         .main-div::-webkit-scrollbar {
@@ -44,7 +69,7 @@ if (empty($_SESSION['user'])) {
         }
 
         .dashboard {
-            padding: 1% 2%;
+            padding: 0 2%;
             display: flex;
             gap: 0.5rem;
             margin-bottom: 3%;
@@ -71,7 +96,6 @@ if (empty($_SESSION['user'])) {
         }
 
         .show-tutor-container {
-            border: 1px solid red;
             position: absolute;
             left: 0;
             top: 0;
@@ -80,6 +104,14 @@ if (empty($_SESSION['user'])) {
             z-index: 99;
             background: rgba(0, 0, 0, 0.25);
         }
+
+        /* complete profile css  */
+        .complete-profile{
+            padding: 0.2% 4%;
+            color: red;
+            font-weight: 900;
+        }
+
     </style>
 </head>
 
@@ -88,6 +120,15 @@ if (empty($_SESSION['user'])) {
         <?php
         include './header.php';
         ?>
+        <div class="complete-profile">
+            <?php
+                if($_SESSION['profile'] != 100){
+                    echo "<p>Complete the profile to active the account, Your profile score is {$_SESSION['profile']}%.
+                    <a href=\"completeProfile.php\">Click here to complete</a>
+                    </p>";
+                }
+            ?>
+        </div>
         <?php
         if ($_SESSION['user']['userType'] == 'tutor') {
             include './tutorDashboard.php';
@@ -96,9 +137,6 @@ if (empty($_SESSION['user'])) {
         }
         ?>
     </div>
-    <?php
-    include './footer.php';
-    ?>
     <script>
         function switchTab(event) {
             let elem = event.target;
@@ -119,10 +157,20 @@ if (empty($_SESSION['user'])) {
             }
         }
 
+        const tutorInfo = document.getElementById("tutor-info");
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function(){
+            if(xhttp.readyState == 4 && xhttp.status == 200){
+                tutorInfo.innerHTML  = this.responseText;
+            }
+        }
         function showTutor(id) {
             const showTutor = document.querySelector('.show-tutor');
-            // alert(id);
             showTutor.style.width = "100%";
+
+            xhttp.open("GET","showTutor.php?id="+id,true);
+            xhttp.send();
+            // alert(id);
         }
 
         function closeTutor() {
@@ -130,6 +178,8 @@ if (empty($_SESSION['user'])) {
             showTutor.style.width = "0"
             showTutor.style.overflow = "hidden";
         }
+
+
     </script>
 </body>
 

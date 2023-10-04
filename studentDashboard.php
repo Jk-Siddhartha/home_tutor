@@ -379,7 +379,7 @@ error_reporting(E_ALL);
                 <div>
                     <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\" alt=\"\" class=\"tutor-pic\">
                     <h3>{$data['name']} | Tutor</h3>
-                    <p>Education | Certifications | {$data['subject']}</p>
+                    <p>Education | Certifications</p>
                 </div>
                 <div>
                     <i class=\"fa-solid fa-message\"></i>
@@ -392,32 +392,8 @@ error_reporting(E_ALL);
             ?>
             <div class="show-tutor">
                 <span class="back" onclick="closeTutor()">Back</span>
-                <div class="tutor-info">
-                    <div class="side-bar">
-
-                    </div>
-                    <div class="right-bar">
-                        <div class="no-of-students"></div>
-                        <div class="contact-methods">
-                            <i class="fa-solid fa-message"></i>
-                            <i class="fa-solid fa-phone"></i>
-                            <i class="fa-solid fa-user-plus"></i>
-                        </div>
-                        <div class="popular-reviews">
-                            <i class="fa-solid fa-comment"> Top Feedbacks</i>
-                            <div class="reviews-cards">
-                                <div class="review-card">
-
-                                </div>
-                                <div class="review-card">
-
-                                </div>
-                                <div class="review-card">
-
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="tutor-info" id="tutor-info">
+                    
                 </div>
             </div>
 

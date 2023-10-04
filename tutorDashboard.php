@@ -2,9 +2,10 @@
     .current-classes,
     .upcoming-classes,
     .past-classes,
-    .my-students {
+    .my-students,
+    .schedule-classes {
         width: 100%;
-        height: 90vh;
+        height: 83vh;
         overflow-y: scroll;
         display: none;
     }
@@ -41,7 +42,7 @@
     .messaging-chatbox {
         margin: 2% 0;
         width: 95%;
-        height: 50vh;
+        height: 47vh;
         border-radius: 10px;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
 
@@ -77,7 +78,6 @@
     }
 
     .my-students {
-        border: 1px solid red;
         padding: 1% 2%;
     }
 
@@ -174,8 +174,48 @@
     .past-classes {
         filter: grayscale(1);
     }
+
+    /* schedule class  */
+    .schedule-classes h3 {
+        text-align: center;
+        padding: 1rem 0;
+    }
+
+    .schedule-classes form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .schedule-classes form div {
+        width: 25rem;
+    }
+
+    .schedule-classes form label {
+        font-size: 18px;
+    }
+
+    .schedule-classes form div input {
+        width: 15rem;
+        padding: 0.4rem 0.6rem;
+        float: right;
+        font-size: 18px;
+    }
+
+    .schedule-classes form input[type="submit"] {
+        cursor: pointer;
+        margin: 1rem 0;
+        font-size: 18px;
+        padding: 0.4rem 2rem;
+        background: #006266;
+        color: #fff;
+        border: none;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.45);
+    }
 </style>
 <div class="dashboard">
+
     <div class="dashboard-navbar">
         <div class="dashboard-navbar-menus">
             <ul>
@@ -183,19 +223,47 @@
                 <li onclick="switchTab(event)">Upcoming Classes</li>
                 <li onclick="switchTab(event)">Past Classes</li>
                 <li onclick="switchTab(event)">My Students</li>
+                <li onclick="switchTab(event)">Schedule Classes</li>
             </ul>
         </div>
         <div class="current-classes">
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
+            <?php
+            include_once './conn.php';
+            $currDate = date('Y-m-d');
+            $currTime = date('H:i');
+            $teacherId = $_SESSION['user']['id'];
+
+            $stmt = $conn->prepare('SELECT * FROM schedule_classes WHERE teacher_id=? AND date=? AND stiming<=? AND etiming>=?');
+
+            $stmt->bind_param('issi', $teacherId, $currDate, $currTime, $currTime);
+
+            $stmt->execute();
+
+            $res = $stmt->get_result();
+
+            $data = $res->fetch_all(MYSQLI_ASSOC);
+
+            // if(count($data))
+
+            foreach ($data as $key => $value) {
+                echo "
+                <div class=\"class\">
+                <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                <h4>{$value['subject']} Class</h4>
+                <p>Date : {$value['date']}</p>
                 <p>Timing:
-                    <span>10:00 AM</span>
+                    <span>{$value['stiming']}</span>
                     To
-                    <span>12:00 PM</span>
+                    <span>{$value['etiming']}</span>
                 </p>
-                <button type="button">Take Class</button>
+                <button type=\"button\">Take Class</button>
             </div>
+                ";
+            }
+
+
+            ?>
+        
         </div>
         <div class="my-students">
             <div class="student">
@@ -212,16 +280,57 @@
             </div>
         </div>
         <div class="upcoming-classes">
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
+            <?php
+            include_once './conn.php';
+            $currDate = date('Y-m-d');
+            $currTime = date('H:i');
+            $teacherId = $_SESSION['user']['id'];
+
+            $stmt = $conn->prepare('SELECT * FROM schedule_classes WHERE teacher_id=?');
+
+            $stmt->bind_param('i', $teacherId);
+
+            $stmt->execute();
+
+            $res = $stmt->get_result();
+
+            $data = $res->fetch_all(MYSQLI_ASSOC);
+            $newData = [];
+            // print_r($data);
+            foreach ($data as $key => $value) {
+                if($value['date']==$currDate){
+                    if($value['stiming']>$currTime){
+                        $newData[] = $value;
+                    }
+                }
+                
+                if($value['date']>$currDate){
+                    $newData[] = $value;
+                }
+            }
+
+            // print_r($newData);
+
+            foreach ($newData as $key => $value) {
+                echo "
+                <div class=\"class\">
+                <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                <h4>{$value['subject']} Class</h4>
+                <p>Date : {$value['date']}</p>
                 <p>Timing:
-                    <span>10:00 AM</span>
+                    <span>{$value['stiming']}</span>
                     To
-                    <span>12:00 PM</span>
+                    <span>{$value['etiming']}</span>
                 </p>
-                <button type="button">Take Class</button>
+                <button type=\"button\">Class Will Be Start</button>
             </div>
+                ";
+            }
+
+
+
+            ?>
+            
         </div>
         <div class="past-classes">
             <div class="class">
@@ -234,6 +343,32 @@
                 </p>
                 <button type="button">Take Class</button>
             </div>
+        </div>
+        <div class="schedule-classes">
+            <h3>Schedule Class</h3>
+            <form method="post">
+                <div>
+                    <label for="subject">Subject </label>
+                    <input type="text" name="subject" id="">
+                </div>
+
+                <div>
+                    <label for="date">Date </label>
+                    <input type="date" name="date" id="">
+                </div>
+
+                <div>
+                    <label for="stiming">Start Timing </label>
+                    <input type="time" name="stiming" id="">
+                </div>
+
+                <div>
+                    <label for="etiming">End Timing</label>
+                    <input type="time" name="etiming" id="">
+                </div>
+
+                <input type="submit" name="schedule-class" value="Schedule Class">
+            </form>
         </div>
     </div>
     <?php

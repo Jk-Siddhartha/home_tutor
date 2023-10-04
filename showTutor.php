@@ -1,26 +1,46 @@
 <?php
 session_start();
-if(empty($_GET['id']) || empty($_SESSION['user'])){
+include './conn.php';
+if (empty($_GET['id']) || empty($_SESSION['user'])) {
     header("Location:index.php");
 }
 
-// echo $_GET['id'];
+$id =  $_GET['id'];
 
-?>
+$sql = "SELECT * FROM users WHERE id=$id";
+$res = $conn->query($sql);
+if ($res->num_rows == 1) {
+    $data = $res->fetch_assoc();
+    echo "<div class=\"side-bar\">
+                        <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\">
+                        <h3>{$data['name']}</h3>
+                        <p>Qualification</p>
+                        <p>Certifications</p>
+                        <p>{$data['subject']}</p>
+                        <p>Ratings</p>
+                        <p>Price</p>
+                    </div>
+                    <div class=\"right-bar\">
+                        <div class=\"no-of-students\"></div>
+                        <div class=\"contact-methods\">
+                            <i class=\"fa-solid fa-message\"></i>
+                            <i class=\"fa-solid fa-phone\"></i>
+                            <i class=\"fa-solid fa-user-plus\"></i>
+                        </div>
+                        <div class=\"popular-reviews\">
+                            <i class=\"fa-solid fa-comment\"> Top Feedbacks</i>
+                            <div class=\"reviews-cards\">
+                                <div class=\"review-card\">
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Tutor | Student Dashboard - Tutor</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="common.css"></head>
-<body>
-    <div class="main-div">
-        <?php include './header.php' ?>
+                                </div>
+                                <div class=\"review-card\">
 
-    </div>
-    <?php include './footer.php' ?>
-</body>
-</html>
+                                </div>
+                                <div class=\"review-card\">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        ";
+}

@@ -19,12 +19,11 @@ if (isset($_POST['register'])) {
     $mobile = parseInput($_POST['mobile']);
     $email = parseInput($_POST['email']);
     $type = parseInput($_POST['type']);
-    $subject = parseInput($_POST['subject']);
     $password = getPassword();
 
     if($name && $mobile && $email && $type && $subject){
-        $stmt = $conn->prepare('INSERT INTO users (name,mobile,email,userType,subject,password) VALUES (?,?,?,?,?,?)');
-        $stmt->bind_param('sissss',$name,$mobile,$email,$type,$subject,$password);
+        $stmt = $conn->prepare('INSERT INTO users (name,mobile,email,userType,password) VALUES (?,?,?,?,?)');
+        $stmt->bind_param('sisss',$name,$mobile,$email,$type,$password);
         $stmt->execute();
         echo "<script>alert('Register Successfully !!')</script>";
         $stmt->close();
@@ -192,18 +191,6 @@ if (isset($_POST['register'])) {
                     <option>Select Who you are</option>
                     <option value="tutor">I am Tutor</option>
                     <option value="student">I am Student</option>
-                </select>
-                <select name="subject" id="subject">
-                    <option>-- Select subject --</option>
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Physics">Physics</option>
-                    <option value="Chemistry">Chemistry</option>
-                    <option value="English">English</option>
-                    <option value="Grammer">Grammer</option>
-                    <option value="Social Science">Social Science</option>
-                    <option value="Computers">Computers</option>
-                    <option value="All">All</option>
-                    <option value="Any">Any</option>
                 </select>
                 <input type="submit" name="register" value="Register">
             </form>
