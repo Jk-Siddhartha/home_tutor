@@ -1,17 +1,22 @@
 <?php
-session_start();
 include './conn.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+session_start();
 
 if (empty($_SESSION['user'])) {
     header("Location:index.php");
 }
 
-function getNumberOfStudents($subject) {
+function getNumberOfStudents($subject)
+{
     return 20;
 }
 
+
 //schedule class
-if(isset($_POST['schedule-class'])){
+if (isset($_POST['schedule-class'])) {
     $subject = $_POST['subject'];
     $date = $_POST['date'];
     $stiming = $_POST['stiming'];
@@ -22,7 +27,7 @@ if(isset($_POST['schedule-class'])){
 
     $stmt = $conn->prepare('INSERT INTO schedule_classes (subject,date,stiming,etiming,teacher_id,teacher_name,no_of_students) VALUES (?,?,?,?,?,?,?)');
 
-    $stmt->bind_param('ssssisi',$subject,$date,$stiming,$etiming,$teacher_id,$teacher_name,$no_of_students);
+    $stmt->bind_param('ssssisi', $subject, $date, $stiming, $etiming, $teacher_id, $teacher_name, $no_of_students);
 
     $stmt->execute();
 
@@ -106,12 +111,36 @@ if(isset($_POST['schedule-class'])){
         }
 
         /* complete profile css  */
-        .complete-profile{
+        .complete-profile {
             padding: 0.2% 4%;
             color: red;
             font-weight: 900;
         }
 
+        /* result div css  */
+        .result {
+            width: 100%;
+            padding: 1% 0;
+            background: rgb(46, 204, 113);
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: none;
+            align-items: center;
+            justify-content: space-evenly;
+            font-size: 18px;
+        }
+
+        .result p {
+            color: red;
+        }
+
+        .result i {
+            cursor: pointer;
+            border: 2px solid red;
+            color: red;
+            padding: 0.2rem 0.2rem;
+        }
     </style>
 </head>
 
@@ -120,13 +149,16 @@ if(isset($_POST['schedule-class'])){
         <?php
         include './header.php';
         ?>
+        <div class="result" id="result">
+
+        </div>
         <div class="complete-profile">
             <?php
-                if($_SESSION['profile'] != 100){
-                    echo "<p>Complete the profile to active the account, Your profile score is {$_SESSION['profile']}%.
+            if ($_SESSION['profile'] != 100) {
+                echo "<p>Complete the profile to active the account, Your profile score is {$_SESSION['profile']}%.
                     <a href=\"completeProfile.php\">Click here to complete</a>
                     </p>";
-                }
+            }
             ?>
         </div>
         <?php
@@ -159,16 +191,17 @@ if(isset($_POST['schedule-class'])){
 
         const tutorInfo = document.getElementById("tutor-info");
         var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function(){
-            if(xhttp.readyState == 4 && xhttp.status == 200){
-                tutorInfo.innerHTML  = this.responseText;
+        xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                tutorInfo.innerHTML = this.responseText;
             }
         }
+
         function showTutor(id) {
             const showTutor = document.querySelector('.show-tutor');
             showTutor.style.width = "100%";
 
-            xhttp.open("GET","showTutor.php?id="+id,true);
+            xhttp.open("GET", "showTutor.php?id=" + id, true);
             xhttp.send();
             // alert(id);
         }
@@ -179,7 +212,32 @@ if(isset($_POST['schedule-class'])){
             showTutor.style.overflow = "hidden";
         }
 
+        const result = document.querySelector('.result');
+        var xhttp1 = new XMLHttpRequest();
+        xhttp1.onreadystatechange = function() {
+            if (xhttp1.readyState == 4 && xhttp1.status == 200) {
+                result.innerHTML = this.responseText;
+                result.style.display = "flex";
+            }
+        }
 
+
+        function sendRequest(id, name) {
+            // alert('Request send to '+id+' for be your teacher...');
+            // alert(name);
+            xhttp1.open("GET", `showTutor.php?query=sendRequest&id=${id}&name='${name}'`, true);
+            xhttp1.send();
+        }
+
+        function hideResult() {
+            result.style.display = "none";
+        }
+
+
+        function acceptRequest(requestID, studentName) {
+            xhttp1.open("GET", `showTutor.php?query=acceptRequest&reqID=${requestID}&studentName='${studentName}'`, true);
+            xhttp1.send();
+        }
     </script>
 </body>
 

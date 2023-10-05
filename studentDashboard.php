@@ -342,18 +342,36 @@ error_reporting(E_ALL);
             </div>
         </div>
         <div class="my-tutors">
-            <div class="tutor">
-                <div>
-                    <img src="https://cdn-icons-png.flaticon.com/128/3641/3641353.png" alt="" class="tutor-pic">
-                    <h3>Tutor Name | Tutor</h3>
-                    <p>Education | Certifications | Subjects</p>
-                </div>
-                <div>
-                    <i class="fa-solid fa-message"></i>
+            <?php
+            include_once './conn.php';
+            $status = "Accepted";
+            $stmt = $conn->prepare('SELECT teacher_id FROM requests WHERE student_id=? AND status=?');
+            $stmt->bind_param('is', $_SESSION['user']['id'], $status);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $teacherIDS = $res->fetch_all();
+            $teacherData = [];
+            foreach ($teacherIDS as $key => $value) {
+                $stmt1 = $conn->prepare('SELECT * FROM users WHERE id=?');
+                $stmt1->bind_param('i', $value[0]);
+                $stmt1->execute();
+                $res = $stmt1->get_result();
+                $teacherData[] = $res->fetch_assoc();
+            }
 
-                    <i class="fa-solid fa-phone"></i>
-                </div>
-            </div>
+            foreach ($teacherData as $key => $value) {
+                echo "<div class=\"tutor\">
+                    <div>
+                        <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\" class=\"tutor-pic\">
+                        <h3>{$value['name']} | Tutor</h3>
+                        <p>Education | Certifications | Subjects</p>
+                    </div>
+                    <div>
+                        <i class=\"fa-solid fa-message\"></i>
+                    </div>
+                </div>";
+            }
+            ?>
         </div>
         <div class="upcoming-classes">
             <div class="class">
@@ -375,16 +393,17 @@ error_reporting(E_ALL);
             if ($res->num_rows > 0) {
                 while ($data = $res->fetch_assoc()) {
                     echo
-                    "<div class=\"tutor\" onclick=\"showTutor({$data['id']})\">
+                    "<div class=\"tutor\">
                 <div>
                     <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\" alt=\"\" class=\"tutor-pic\">
                     <h3>{$data['name']} | Tutor</h3>
                     <p>Education | Certifications</p>
                 </div>
                 <div>
+                <i class=\"fa-solid fa-eye\" onclick=\"showTutor({$data['id']})\"></i>
+                <i class=\"fa-solid fa-user-plus\" onclick=\"sendRequest({$data['id']},'{$data['name']}')\"></i>
                     <i class=\"fa-solid fa-message\"></i>
 
-                    <i class=\"fa-solid fa-phone\"></i>
                 </div>
             </div>";
                 }
@@ -393,7 +412,7 @@ error_reporting(E_ALL);
             <div class="show-tutor">
                 <span class="back" onclick="closeTutor()">Back</span>
                 <div class="tutor-info" id="tutor-info">
-                    
+
                 </div>
             </div>
 

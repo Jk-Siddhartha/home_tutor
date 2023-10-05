@@ -1,14 +1,114 @@
 <?php
 session_start();
 include './conn.php';
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
 if (empty($_SESSION['user'])) {
     header("Location:index.php");
 }
 
+//Personal Details
+if (isset($_POST['personal_details'])) {
+    $user_id = $_SESSION['user']['id'];
+    $name = $_POST['name']; //old
+    $gender = $_POST['gender'];
+    $dob = $_POST['dob'];
+    $email = $_POST['email']; //old
+    $mobile = $_POST['mobile']; //old
+    $profession = $_POST['profession']; //old
+    $address = $_POST['address'];
+    $pincode = $_POST['pincode'];
+    $profilePicData = file_get_contents($_FILES['myImage']['tmp_name']);
+    $profilePicMimeType = mime_content_type($_FILES['myImage']['tmp_name']);
+
+    //abhi thoda sa kaam isme baaki hai
+    if ($gender && $dob && $address && $pincode) {
+        $stmt = $conn->prepare('INSERT INTO personal_details (id,user_id,gender,dob,address,pincode,profile_pic) VALUES (0,?,?,?,?,?,?)');
+
+        $stmt->bind_param('isssss', $user_id, $gender, $dob, $address, $pincode, $profilePicData);
+
+        $stmt->execute();
+
+        echo "<script>alert('Personal Details uploaded !!')</script>";
+    } else {
+        echo "<script>console.log('hii')</script>";
+    }
+}
+
+//Education Qualifications
+if (isset($_POST['educational-qualification'])) {
+    $user_id = $_SESSION['user']['id'];
+    $highest_qualification = $_POST['highest-qualification'];
+    $highest_qualification_college = $_POST['highest-qualification-college'];
+    $highest_qualification_percentage = $_POST['highest-qualification-percentage'];
+    $highest_qualification_year = $_POST['highest-qualification-year'];
+    if ($highest_qualification && $highest_qualification_college && $highest_qualification_percentage && $highest_qualification_year) {
+        $stmt = $conn->prepare('INSERT INTO educational_qualification (id,highest_qualification,highest_qualification_college,highest_qualification_percentage,highest_qualification_year,user_id) VALUES (0,?,?,?,?,?)');
+
+        $stmt->bind_param('ssdii', $highest_qualification, $highest_qualification_college, $highest_qualification_percentage, $highest_qualification_year, $user_id);
+
+        $stmt->execute();
+
+        $certification = $_POST['certification'];
+        if (count($certification) > 0) {
+            foreach ($certification as $key => $value) {
+                $stmt1 = $conn->prepare('INSERT INTO certifications (id,user_id,certificate) VALUES (0,?,?)');
+                $stmt1->bind_param('is', $user_id, $value);
+                $stmt1->execute();
+            }
+        }
+
+        echo "<script>alert('Eudcational Details uploaded !!')</script>";
+    }
+}
+
+//tuition details
+if (isset($_POST['tuition-details'])) {
+    $year_experience = $_POST['year-experience'];
+    $month_experience = $_POST['month-experience'];
+    $mode = $_POST['mode'];
+
+    if ($year_experience && $month_experience && $mode) {
+        $stmt = $conn->prepare('INSERT INTO tuition_details (id,user_id,year_experience,month_experience,mode) VALUES (0,?,?,?,?)');
+
+        $stmt->bind_param('isis', $_SESSION['user']['id'], $year_experience, $month_experience, $mode);
+
+        $stmt->execute();
+
+        $subject = $_POST['subject'];
+        $price = $_POST['price'];
+
+        if (count($subject) == count($price) && !empty($subject)) {
+            for ($i = 0; $i < count($subject); $i++) {
+                $stmt1 = $conn->prepare('INSERT INTO subjects (id,user_id,subject,price) VALUES (0,?,?,?)');
+                $stmt1->bind_param('isi', $_SESSION['user']['id'], $subject[$i], $price[$i]);
+                $stmt1->execute();
+            }
+        }
+
+        echo "<script>alert('Tuition Details uploaded !!')</script>";
+    }
+}
+
+
+if(isset($_POST['other-details'])){
+    $languages_known = $_POST['language'];
+    $no_of_hours= $_POST['working-hours'];
+
+    if($languages_known && $no_of_hours){
+        $stmt = $conn->prepare('INSERT INTO other_details (id,languages_known,no_of_hours,user_id) VALUES (0,?,?,?)');
+        $stmt->bind_param('sii',$languages_known,$no_of_hours,$_SESSION['user']['id']);
+        $stmt->execute();
+
+
+        echo "<script>alert('Other Details uploaded !!')</script>";
+    }
+}
+
+
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -284,10 +384,10 @@ if (empty($_SESSION['user'])) {
                     </div>
                     <div>
 
-                        <label for="profile-pic">Profile Picture </label>
-                        <input type="file" name="profile-pic" id="profile-pic">
+                        <label for="myImage">Profile Picture </label>
+                        <input type="file" name="myImage" id="myImage">
                     </div>
-                    <input type="submit" name="personal-details" value="Submit & Next">
+                    <input type="submit" name="personal_details" value="Submit & Next">
 
                 </form>
             </div>
@@ -296,20 +396,20 @@ if (empty($_SESSION['user'])) {
                 <form method="post">
                     <label for="highest-qualification">Select Highest Qualification</label>
                     <select name="highest-qualification" id="">
-                        <option value="max">PhD</option>
-                        <option value="17">Post Graduation</option>
-                        <option value="16">Graduation (4 Years)</option>
-                        <option value="15">Graduation (3 Years)</option>
-                        <option value="14">Diploma</option>
-                        <option value="12">Intermediate</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Post Graduation">Post Graduation</option>
+                        <option value="Graduation (4 Years)">Graduation (4 Years)</option>
+                        <option value="Graduation (3 Years)">Graduation (3 Years)</option>
+                        <option value="Diploma">Diploma</option>
+                        <option value="Intermediate">Intermediate</option>
                         <?php
                         if ($_SESSION['user']['userType'] == "student") {
-                            echo "<option value\"10\">High School</option>";
-                            echo "<option value\"9\">9th Standard</option>";
-                            echo "<option value\"8\">8th Standard</option>";
-                            echo "<option value\"7\">7th Standard</option>";
-                            echo "<option value\"6\">6th Standard</option>";
-                            echo "<option value\"5\">5th Standard</option>";
+                            echo "<option value\"High School\">High School</option>";
+                            echo "<option value\"9th Standard\">9th Standard</option>";
+                            echo "<option value\"8th Standard\">8th Standard</option>";
+                            echo "<option value\"7th Standard\">7th Standard</option>";
+                            echo "<option value\"6th Standard\">6th Standard</option>";
+                            echo "<option value\"5th Standard\">5th Standard</option>";
                         }
 
                         ?>

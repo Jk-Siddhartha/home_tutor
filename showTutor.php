@@ -1,9 +1,48 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
 include './conn.php';
-if (empty($_GET['id']) || empty($_SESSION['user'])) {
+if (empty($_SESSION['user'])) {
     header("Location:index.php");
 }
+
+if ($_GET['query'] == 'sendRequest') {
+    try {
+        $teacher_id = $_GET['id'];
+        $teacher_name = $_GET['name'];
+        $student_id = $_SESSION['user']['id'];
+        $student_name = $_SESSION['user']['name'];
+        $status = "Pending";
+        $stmt = $conn->prepare('INSERT INTO requests (id,student_name,student_id,teacher_id,status) VALUES (0,?,?,?,?)');
+        $stmt->bind_param('siis', $student_name, $student_id, $teacher_id, $status);
+        if ($stmt->execute()) {
+            echo "<p>You sent request to $teacher_name, to be your teacher</p><i class=\"fa-solid fa-xmark\" onclick=\"hideResult()\"></i>";
+        } else {
+            echo "<p>Something went wrong, please try again..</p><i class=\"fa-solid fa-xmark\" onclick=\"hideResult()\"></i>";
+        }
+    } catch (Exception $e) {
+        echo "<p>You have already sent request to $teacher_name, to be your teacher</p><i class=\"fa-solid fa-xmark\" onclick=\"hideResult()\"></i>";
+    }
+    exit;
+}
+
+
+if ($_GET['query'] == 'acceptRequest') {
+    $reqID = $_GET['reqID'];
+    $studentName = $_GET['studentName'];
+    $status = "Accepted";
+    $stmt = $conn->prepare('UPDATE requests SET status=? WHERE id=?');
+    $stmt->bind_param('si', $status, $reqID);
+    if ($stmt->execute()) {
+        echo "<p>You accepted the request of $studentName, Now you are tutor of $studentName.</p><i class=\"fa-solid fa-xmark\" onclick=\"hideResult()\"></i>";
+    }else{
+        echo "<p>Something went wrong, please try again..</p><i class=\"fa-solid fa-xmark\" onclick=\"hideResult()\"></i>";
+    }
+    exit;
+}
+
 
 $id =  $_GET['id'];
 

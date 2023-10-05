@@ -81,6 +81,49 @@
         padding: 1% 2%;
     }
 
+    .student-requests {
+        padding: 0.6rem;
+        box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.45);
+        margin-bottom: 0.5rem;
+        width: 100%;
+        overflow-x: scroll;
+        display: flex;
+    }
+
+
+    .requested-student {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.45);
+        margin-right: 0.5rem;
+        width: 50vh;
+    }
+
+    .requested-student i {
+        background: green;
+        color: #fff;
+        padding: 1rem 1rem;
+        font-size: 18px;
+
+    }
+
+    .requested-student p {
+        text-transform: uppercase;
+        padding: 0 0.5rem;
+        font-size: 18px;
+
+    }
+
+    .requested-student button {
+        color: #fff;
+        background: #009506;
+        padding: 0.5rem 1rem;
+        font-size: 18px;
+
+    }
+
     .student {
         cursor: pointer;
         width: 100%;
@@ -215,7 +258,52 @@
     }
 </style>
 <div class="dashboard">
+    <?php
+    include_once './conn.php';
+    $currDate = date('Y-m-d');
+    $currTime = date('H:i');
+    $teacherId = $_SESSION['user']['id'];
 
+    $stmt = $conn->prepare('SELECT * FROM schedule_classes WHERE teacher_id=?');
+
+    $stmt->bind_param('i', $teacherId);
+
+    $stmt->execute();
+
+    $res = $stmt->get_result();
+
+    $data = $res->fetch_all(MYSQLI_ASSOC);
+    $currentClasses = [];
+    $upcomingClasses = [];
+    $pastClasses = [];
+
+    // print_r($data);
+    foreach ($data as $key => $value) {
+        if ($value['date'] == $currDate) {
+            if ($value['stiming'] > $currTime) {
+                $upcomingClasses[] = $value;
+            }
+
+            if ($value['stiming'] <= $currTime && $value['etiming'] >= $currTime) {
+                $currentClasses[] = $value;
+            }
+
+            if ($value['etiming'] < $currTime) {
+                $pastClasses[] = $value;
+            }
+        }
+
+        if ($value['date'] > $currDate) {
+            $upcomingClasses[] = $value;
+        }
+
+        if ($value['date'] < $currDate) {
+            $pastClasses[] = $value;
+        }
+    }
+
+
+    ?>
     <div class="dashboard-navbar">
         <div class="dashboard-navbar-menus">
             <ul>
@@ -228,91 +316,74 @@
         </div>
         <div class="current-classes">
             <?php
-            include_once './conn.php';
-            $currDate = date('Y-m-d');
-            $currTime = date('H:i');
-            $teacherId = $_SESSION['user']['id'];
-
-            $stmt = $conn->prepare('SELECT * FROM schedule_classes WHERE teacher_id=? AND date=? AND stiming<=? AND etiming>=?');
-
-            $stmt->bind_param('issi', $teacherId, $currDate, $currTime, $currTime);
-
-            $stmt->execute();
-
-            $res = $stmt->get_result();
-
-            $data = $res->fetch_all(MYSQLI_ASSOC);
-
-            // if(count($data))
-
-            foreach ($data as $key => $value) {
-                echo "
-                <div class=\"class\">
-                <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
-                <h4>{$value['subject']} Class</h4>
-                <p>Date : {$value['date']}</p>
-                <p>Timing:
-                    <span>{$value['stiming']}</span>
-                    To
-                    <span>{$value['etiming']}</span>
-                </p>
-                <button type=\"button\">Take Class</button>
-            </div>
-                ";
+            if (count($currentClasses) > 0) {
+                foreach ($currentClasses as $key => $value) {
+                    echo "
+                    <div class=\"class\">
+                    <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                    <h4>{$value['subject']} Class</h4>
+                    <p>Date : {$value['date']}</p>
+                    <p>Timing:
+                        <span>{$value['stiming']}</span>
+                        To
+                        <span>{$value['etiming']}</span>
+                    </p>
+                    <button type=\"button\">Take Class</button>
+                </div>
+                    ";
+                }
+            } else {
+                echo "<p>No Classes Found..</p>";
             }
+
 
 
             ?>
-        
+
         </div>
         <div class="my-students">
-            <div class="student">
-                <div>
-                    <img src="https://cdn-icons-png.flaticon.com/128/3641/3641353.png" alt="" class="student-pic">
-                    <h3>student Name | student</h3>
-                    <p>Education | Certifications | Subjects</p>
-                </div>
-                <div>
-                    <i class="fa-solid fa-message"></i>
-
-                    <i class="fa-solid fa-phone"></i>
-                </div>
-            </div>
-        </div>
-        <div class="upcoming-classes">
-            <?php
-            include_once './conn.php';
-            $currDate = date('Y-m-d');
-            $currTime = date('H:i');
-            $teacherId = $_SESSION['user']['id'];
-
-            $stmt = $conn->prepare('SELECT * FROM schedule_classes WHERE teacher_id=?');
-
-            $stmt->bind_param('i', $teacherId);
-
-            $stmt->execute();
-
-            $res = $stmt->get_result();
-
-            $data = $res->fetch_all(MYSQLI_ASSOC);
-            $newData = [];
-            // print_r($data);
-            foreach ($data as $key => $value) {
-                if($value['date']==$currDate){
-                    if($value['stiming']>$currTime){
-                        $newData[] = $value;
+            <div class="student-requests">
+                <?php
+                $stmt = $conn->prepare('SELECT * FROM requests WHERE teacher_id=?');
+                $stmt->bind_param('i', $_SESSION['user']['id']);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $data = $res->fetch_all(MYSQLI_ASSOC);
+                // print_r($data);
+                foreach ($data as $key => $value) {
+                    if ($value['status'] == 'Pending') {
+                        echo "<div class=\"requested-student\">
+                        <i class=\"fa-solid fa-user-plus\"></i>
+                        <p>{$value['student_name']}</p>
+                        <button onclick=\"acceptRequest({$value['id']},'{$value['student_name']}')\">Accept Request</button>
+                        </div>";
                     }
                 }
-                
-                if($value['date']>$currDate){
-                    $newData[] = $value;
+                echo "</div>";
+
+
+                foreach ($data as $key => $value) {
+                    if ($value['status'] == 'Accepted') {
+                        echo "<div class=\"student\">
+                    <div>
+                        <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\" class=\"student-pic\">
+                        <h3>{$value['student_name']} | student</h3>
+                        <p>Education | Certifications | Subjects</p>
+                    </div>
+                    <div>   
+                        <i class=\"fa-solid fa-message\"></i>
+                    </div>
+                </div>";
+                    }
                 }
-            }
 
-            // print_r($newData);
+                ?>
 
-            foreach ($newData as $key => $value) {
-                echo "
+            </div>
+            <div class="upcoming-classes">
+                <?php
+                foreach ($upcomingClasses as $key => $value) {
+                    echo "
                 <div class=\"class\">
                 <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
                 <h4>{$value['subject']} Class</h4>
@@ -325,53 +396,61 @@
                 <button type=\"button\">Class Will Be Start</button>
             </div>
                 ";
-            }
+                }
 
 
 
-            ?>
-            
-        </div>
-        <div class="past-classes">
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
+                ?>
+
+            </div>
+            <div class="past-classes">
+                <?php
+                foreach ($pastClasses as $key => $value) {
+                    echo "
+                <div class=\"class\">
+                <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                <h4>{$value['subject']} Class</h4>
+                <p>Date : {$value['date']}</p>
                 <p>Timing:
-                    <span>10:00 AM</span>
+                    <span>{$value['stiming']}</span>
                     To
-                    <span>12:00 PM</span>
+                    <span>{$value['etiming']}</span>
                 </p>
-                <button type="button">Take Class</button>
+                <button type=\"button\">Class Expired</button>
+            </div>
+                ";
+                }
+                ?>
+
+            </div>
+            <div class="schedule-classes">
+                <h3>Schedule Class</h3>
+                <form method="post">
+                    <div>
+                        <label for="subject">Subject </label>
+                        <input type="text" name="subject" id="" required>
+                    </div>
+
+                    <div>
+                        <label for="date">Date </label>
+                        <input type="date" name="date" id="" required>
+                    </div>
+
+                    <div>
+                        <label for="stiming">Start Timing </label>
+                        <input type="time" name="stiming" id="" required>
+                    </div>
+
+                    <div>
+                        <label for="etiming">End Timing</label>
+                        <input type="time" name="etiming" id="" required>
+                    </div>
+
+                    <input type="submit" name="schedule-class" value="Schedule Class">
+                </form>
             </div>
         </div>
-        <div class="schedule-classes">
-            <h3>Schedule Class</h3>
-            <form method="post">
-                <div>
-                    <label for="subject">Subject </label>
-                    <input type="text" name="subject" id="">
-                </div>
-
-                <div>
-                    <label for="date">Date </label>
-                    <input type="date" name="date" id="">
-                </div>
-
-                <div>
-                    <label for="stiming">Start Timing </label>
-                    <input type="time" name="stiming" id="">
-                </div>
-
-                <div>
-                    <label for="etiming">End Timing</label>
-                    <input type="time" name="etiming" id="">
-                </div>
-
-                <input type="submit" name="schedule-class" value="Schedule Class">
-            </form>
-        </div>
+        <?php
+        include './dashboard_fixed.php';
+        ?>
     </div>
-    <?php
-    include './dashboard_fixed.php';
-    ?>
-</div>
