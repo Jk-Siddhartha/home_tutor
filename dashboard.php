@@ -201,7 +201,7 @@ if (isset($_POST['schedule-class'])) {
             const showTutor = document.querySelector('.show-tutor');
             showTutor.style.width = "100%";
 
-            xhttp.open("GET", "showTutor.php?id=" + id, true);
+            xhttp.open("GET", "showTutor.php?query=showTutor&id=" + id, true);
             xhttp.send();
             // alert(id);
         }
@@ -237,6 +237,61 @@ if (isset($_POST['schedule-class'])) {
         function acceptRequest(requestID, studentName) {
             xhttp1.open("GET", `showTutor.php?query=acceptRequest&reqID=${requestID}&studentName='${studentName}'`, true);
             xhttp1.send();
+        }
+
+
+        function openDiv(elem) {
+            const rightBars = document.querySelectorAll('.right-bar');
+            for (let i = 0; i < rightBars.length; i++) {
+                rightBars[i].style.display = "none";
+
+            }
+            document.querySelector('.' + elem).style.display = "block";
+        }
+
+        const chatboxInner = document.querySelector('.chatbox-inner');
+        var xhttp2 = new XMLHttpRequest();
+        xhttp2.onreadystatechange = function() {
+            if (xhttp2.readyState == 4 && xhttp2.status == 200) {
+                chatboxInner.innerHTML = this.responseText;
+                // chatboxInner.style.display = "flex";
+                chatboxInner.scrollTop = chatboxInner.scrollHeight;
+            }
+        }
+
+        let myInterval;
+
+        function checkMessages(id) {
+            clearInterval(myInterval);
+            myInterval = setInterval(() => {
+                const chatboxMessages = document.getElementById('chatbox-messages');
+                var xhttp3 = new XMLHttpRequest();
+                xhttp3.onreadystatechange = function(){
+                    if(xhttp3.readyState == 4 && xhttp3.status == 200){
+                        chatboxMessages.innerHTML = this.responseText;
+                    }
+                }
+                xhttp3.open("GET",`showTutor.php?query=checkMessages&id=${id}`,true);
+                xhttp3.send();
+            }, 1000);
+        }
+
+
+        function openMessage(id, name) {
+            // alert(name);
+            const chatboxTitle = document.querySelector('.chatbox-title');
+            chatboxTitle.innerHTML = name;
+            xhttp2.open("GET", `showTutor.php?query=openMessage&id=${id}&name='${name}'`, true);
+            xhttp2.send();
+            checkMessages(id);
+        }
+
+
+        function sendMessage(id, name) {
+            // alert(name);
+            var msg = document.getElementById("msg").value;
+            xhttp2.open("GET", `showTutor.php?query=sendMessage&id=${id}&msg=${msg}&$name=${name}`, true);
+            xhttp2.send();
         }
     </script>
 </body>

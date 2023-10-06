@@ -2,7 +2,7 @@
 session_start();
 include './error_hander.php';
 include './utilityFunctions.php';
-include './conn.php';
+include_once './conn.php';
 
 if(!empty($_SESSION['user'])){
     header("Location:dashboard.php");
@@ -19,13 +19,13 @@ if(isset($_POST['login'])){
     if($username && $password){
         $stmt = $conn->prepare('SELECT * FROM users WHERE email=? AND password=?');
         $stmt->bind_param('ss',$username,$password);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $_SESSION['user'] = $result->fetch_assoc();
-        $_SESSION['profile'] = 20;
-        echo "<script>alert('login success!!')</script>";
-        header("Location:dashboard.php");
-
+        if($stmt->execute()){
+            $result = $stmt->get_result();
+            $_SESSION['user'] = $result->fetch_assoc();
+            $_SESSION['profile'] = 20;
+            echo "<script>alert('login success!!')</script>";
+            header("Location:dashboard.php");
+        }
     }else{
         echo "<script>alert('fields are empty!!')</script>";
     }

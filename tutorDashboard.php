@@ -70,6 +70,64 @@
         margin-left: 15px;
     }
 
+    .chatbox-inner {
+        border: 1px solid red;
+        height: 85%;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        position: relative;
+    }
+
+    .chatbox-messages {
+        border: 1px solid green;
+        height: 85%;
+        padding: 0.4rem 0.6rem;
+        overflow-y: scroll;
+        width: 100%;
+    }
+
+    .chatbox-messages::-webkit-scrollbar {
+        width: 0.5rem;
+        background: #000;
+        border-radius: 10px;
+    }
+
+    .chatbox-messages p {
+        margin-bottom: 0.3rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.15);
+        font-size: 14px;
+        width: fit-content;
+    }
+
+    .chatbox-messages p span{
+        font-size: 10px;
+    }
+
+    .input {
+        height: 15%;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.45);
+        text-align: center;
+    }
+
+    .input input {
+        border: none;
+        width: 80%;
+        outline: none;
+        padding: 1% 4%;
+    }
+
+    .input button {
+        width: 15%;
+        text-align: center;
+    }
+
 
 
     /* student dashboard css  */
@@ -370,8 +428,8 @@
                         <h3>{$value['student_name']} | student</h3>
                         <p>Education | Certifications | Subjects</p>
                     </div>
-                    <div>   
-                        <i class=\"fa-solid fa-message\"></i>
+                    <div>
+                        <i class=\"fa-solid fa-message\" onclick=\"openMessage({$value['student_id']},'{$value['student_name']}')\"></i>
                     </div>
                 </div>";
                     }

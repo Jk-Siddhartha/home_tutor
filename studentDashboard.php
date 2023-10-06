@@ -10,7 +10,7 @@ error_reporting(E_ALL);
     .all-tutors,
     .my-tutors {
         width: 100%;
-        height: 90vh;
+        height: 80vh;
         overflow-y: scroll;
         display: none;
     }
@@ -47,9 +47,10 @@ error_reporting(E_ALL);
     .messaging-chatbox {
         margin: 2% 0;
         width: 95%;
-        height: 50vh;
+        height: 45vh;
         border-radius: 10px;
         box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+        border: 1px solid red;
 
     }
 
@@ -61,6 +62,7 @@ error_reporting(E_ALL);
         background: green;
         border-top-left-radius: 10px;
         border-top-right-radius: 10px;
+        height: 15%;
     }
 
     .btns {
@@ -73,6 +75,64 @@ error_reporting(E_ALL);
     .btns span {
         cursor: pointer;
         margin-left: 15px;
+    }
+
+    .chatbox-inner {
+        border: 1px solid red;
+        height: 85%;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        position: relative;
+    }
+
+    .chatbox-messages {
+        border: 1px solid green;
+        height: 85%;
+        padding: 0.4rem 0.6rem;
+        overflow-y: scroll;
+        width: 100%;
+    }
+
+    .chatbox-messages::-webkit-scrollbar {
+        width: 0.5rem;
+        background: #000;
+        border-radius: 10px;
+    }
+
+    .chatbox-messages p {
+        margin-bottom: 0.3rem;
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        background: rgba(0, 0, 0, 0.15);
+        font-size: 14px;
+        width: fit-content;
+    }
+
+    .chatbox-messages p span{
+        font-size: 10px;
+    }
+
+    .input {
+        height: 15%;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.45);
+        text-align: center;
+    }
+
+    .input input {
+        border: none;
+        width: 80%;
+        outline: none;
+        padding: 1% 4%;
+    }
+
+    .input button {
+        width: 15%;
+        text-align: center;
     }
 
 
@@ -147,7 +207,7 @@ error_reporting(E_ALL);
 
     .class {
         border: 1px solid rgba(0, 0, 0, 0.45);
-        width: 40%;
+        width: 28%;
         padding: 1.5% 1%;
         margin: 1% 2%;
         float: left;
@@ -155,6 +215,8 @@ error_reporting(E_ALL);
 
     .class img {
         width: 100%;
+        height: 20vh;
+        object-fit: cover;
     }
 
     .class h4,
@@ -242,9 +304,19 @@ error_reporting(E_ALL);
         padding: 2% 2.5%;
     }
 
+    .side-bar p:hover {
+        cursor: pointer;
+        text-decoration: underline;
+    }
+
     .right-bar {
         width: 70%;
         height: auto;
+        display: none;
+    }
+
+    .home {
+        display: block;
     }
 
     .no-of-students {
@@ -287,6 +359,60 @@ error_reporting(E_ALL);
     }
 </style>
 <div class="dashboard">
+    <?php
+    include_once './conn.php';
+    $status = "Accepted";
+    $currDate = date('Y-m-d');
+    $currTime = date('H:i');
+    $stmt = $conn->prepare('SELECT teacher_id FROM requests WHERE student_id=? AND status=?');
+    $stmt->bind_param('is', $_SESSION['user']['id'], $status);
+    $stmt->execute();
+    $res = $stmt->get_result();
+    $data = $res->fetch_all(MYSQLI_ASSOC);
+
+    $classes = [];
+    foreach ($data as $key => $value) {
+        $stmt = $conn->prepare('SELECT * FROM schedule_classes WHERE teacher_id=?');
+        $stmt->bind_param('i', $value['teacher_id']);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $newData = $res->fetch_all(MYSQLI_ASSOC);
+        foreach ($newData as $newKey => $newValue) {
+            $classes[] = $newValue;
+        }
+    }
+
+    // print_r($classes);
+
+    $currentClasses = [];
+    $upcomingClasses = [];
+    $pastClasses = [];
+
+    foreach ($classes as $key => $value) {
+        if ($value['date'] == $currDate) {
+            if ($value['stiming'] > $currTime) {
+                $upcomingClasses[] = $value;
+            }
+
+            if ($value['stiming'] <= $currTime && $value['etiming'] >= $currTime) {
+                $currentClasses[] = $value;
+            }
+
+            if ($value['etiming'] < $currTime) {
+                $pastClasses[] = $value;
+            }
+        }
+
+        if ($value['date'] > $currDate) {
+            $upcomingClasses[] = $value;
+        }
+
+        if ($value['date'] < $currDate) {
+            $pastClasses[] = $value;
+        }
+    }
+
+    ?>
     <div class="dashboard-navbar">
         <div class="dashboard-navbar-menus">
             <ul>
@@ -298,48 +424,47 @@ error_reporting(E_ALL);
             </ul>
         </div>
         <div class="current-classes">
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
-                <p>Timing:
-                    <span>10:00 AM</span>
-                    To
-                    <span>12:00 PM</span>
-                </p>
-                <button type="button">Take Class</button>
-            </div>
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
-                <p>Timing:
-                    <span>10:00 AM</span>
-                    To
-                    <span>12:00 PM</span>
-                </p>
-                <button type="button">Take Class</button>
-            </div>
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
-                <p>Timing:
-                    <span>10:00 AM</span>
-                    To
-                    <span>12:00 PM</span>
-                </p>
-                <button type="button">Take Class</button>
-            </div>
+            <?php
+            if (count($currentClasses) > 0) {
+                foreach ($currentClasses as $key => $value) {
+                    echo "
+                    <div class=\"class\">
+                    <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                    <h4>{$value['subject']} Class</h4>
+                    <p>Date : {$value['date']}</p>
+                    <p>Timing:
+                        <span>{$value['stiming']}</span>
+                        To
+                        <span>{$value['etiming']}</span>
+                    </p>
+                    <button type=\"button\">Take Class</button>
+                </div>
+                    ";
+                }
+            } else {
+                echo "<p>No Classes Found..</p>";
+            }
+            ?>
         </div>
         <div class="past-classes">
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
+            <?php
+            foreach ($pastClasses as $key => $value) {
+                echo "
+                <div class=\"class\">
+                <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                <h4>{$value['subject']} Class</h4>
+                <p>Date : {$value['date']}</p>
                 <p>Timing:
-                    <span>10:00 AM</span>
+                    <span>{$value['stiming']}</span>
                     To
-                    <span>12:00 PM</span>
+                    <span>{$value['etiming']}</span>
                 </p>
-                <button type="button">Expired</button>
+                <button type=\"button\">Class Expired</button>
             </div>
+                ";
+            }
+            ?>
+
         </div>
         <div class="my-tutors">
             <?php
@@ -360,9 +485,15 @@ error_reporting(E_ALL);
             }
 
             foreach ($teacherData as $key => $value) {
+                $stmt = $conn->prepare('SELECT profile_pic FROM personal_details WHERE user_id=?');
+                $stmt->bind_param('i', $value['id']);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                $imgData = $res->fetch_column();
+                $url = "data:image/jpeg;base64," . base64_encode($imgData);
                 echo "<div class=\"tutor\">
                     <div>
-                        <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\" class=\"tutor-pic\">
+                        <img src=\"$url\" class=\"tutor-pic\">
                         <h3>{$value['name']} | Tutor</h3>
                         <p>Education | Certifications | Subjects</p>
                     </div>
@@ -374,16 +505,27 @@ error_reporting(E_ALL);
             ?>
         </div>
         <div class="upcoming-classes">
-            <div class="class">
-                <img src="https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais" alt="">
-                <h4>Mathematics Class</h4>
+            <?php
+            foreach ($upcomingClasses as $key => $value) {
+
+                echo "
+                <div class=\"class\">
+                <img src=\"https://img.freepik.com/free-vector/chalkboard-with-math-elements_1411-88.jpg?size=626&ext=jpg&ga=GA1.2.1917642526.1694608725&semt=ais\">
+                <h4>{$value['subject']} Class</h4>
+                <p>Date : {$value['date']}</p>
                 <p>Timing:
-                    <span>10:00 AM</span>
+                    <span>{$value['stiming']}</span>
                     To
-                    <span>12:00 PM</span>
+                    <span>{$value['etiming']}</span>
                 </p>
-                <button type="button">10 Mins to Class</button>
+                <button type=\"button\">Class Will Be Start</button>
             </div>
+                ";
+            }
+
+
+
+            ?>
         </div>
         <div class="all-tutors">
             <?php
@@ -392,17 +534,22 @@ error_reporting(E_ALL);
             $res = $conn->query($sql);
             if ($res->num_rows > 0) {
                 while ($data = $res->fetch_assoc()) {
-                    echo
-                    "<div class=\"tutor\">
+                    $stmt = $conn->prepare('SELECT profile_pic FROM personal_details WHERE user_id=?');
+                    $stmt->bind_param('i', $data['id']);
+                    $stmt->execute();
+                    $result = $stmt->get_result();
+                    $imgData = $result->fetch_column();
+                    $url = "data:image/jpeg;base64," . base64_encode($imgData);
+                    echo"<div class=\"tutor\">
                 <div>
-                    <img src=\"https://cdn-icons-png.flaticon.com/128/3641/3641353.png\" alt=\"\" class=\"tutor-pic\">
+                    <img src=\"$url\" alt=\"\" class=\"tutor-pic\">
                     <h3>{$data['name']} | Tutor</h3>
                     <p>Education | Certifications</p>
                 </div>
                 <div>
                 <i class=\"fa-solid fa-eye\" onclick=\"showTutor({$data['id']})\"></i>
                 <i class=\"fa-solid fa-user-plus\" onclick=\"sendRequest({$data['id']},'{$data['name']}')\"></i>
-                    <i class=\"fa-solid fa-message\"></i>
+                    <i class=\"fa-solid fa-message\" onclick=\"openMessage({$data['id']},'{$data['name']}')\"></i>
 
                 </div>
             </div>";

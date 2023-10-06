@@ -21,7 +21,7 @@ if (isset($_POST['register'])) {
     $type = parseInput($_POST['type']);
     $password = getPassword();
 
-    if($name && $mobile && $email && $type && $subject){
+    if($name && $mobile && $email && $type){
         $stmt = $conn->prepare('INSERT INTO users (name,mobile,email,userType,password) VALUES (?,?,?,?,?)');
         $stmt->bind_param('sisss',$name,$mobile,$email,$type,$password);
         $stmt->execute();
